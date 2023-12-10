@@ -1,4 +1,4 @@
-name: Build
+name: Builddddd
 on:
   push:
     branches:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # This needs to be changed to an Alpine image
     strategy:
       fail-fast: false
       matrix:
@@ -27,49 +27,22 @@ jobs:
             filename: hiddify-alpine-x64  # Adjust the filename accordingly
 
     steps:
-      - name: Setup Alpine Dependencies
-        if: matrix.platform == 'linux'
-        run: |
-          apk update
-          apk add \
-            findutils \
-            ninja \
-            pkgconfig \
-            gtk+3.0-dev \
-            glib-dev \
-            gio-dev \
-            libappindicator-dev \
-            fuse
-          modprobe fuse
-          wget -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
-          chmod +x appimagetool
-          mv appimagetool /usr/local/bin/
-          
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      
       - name: Build for Alpine
-        if: matrix.platform == 'linux'
         run: |
-          # Install necessary build tools (replace these with your actual build       dependencies)
-          apk add build-base git curl
+          docker buildx create --name mybuilder --use
+          docker buildx build --platform linux/amd64 -t myapp .
       
-          # Clone your repository (replace 'your_repo_url' with your actual repository      URL)
-          git clone your_repo_url
-          cd your_project_directory
-      
-          # Install project dependencies (adjust according to your project's      requirements)
-          # For example, if it's a Node.js project:
-          apk add nodejs npm
-          npm install
-      
-          # Execute build commands
-          # Replace these commands with your actual build commands for the project
-          make build  # Example build command
-      
-          # After the build, you might package or prepare your application for      distribution
-          # Example: Compress the built files into an archive
-          tar -czvf your_app.tar.gz ./build_folder
-      
-          # Optionally, clean up unnecessary dependencies or temporary files
-          apk del build-base git curl  # Remove build tools not needed in the final app
-      
-          # You might also want to move or copy the built artifacts to an appropriate       location
-          mv your_app.tar.gz /path/to/artifact_storage      
+      - name: Save artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: myapp
+          path: .  # Replace this with the path to your built binary or artifacts
