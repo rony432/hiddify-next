@@ -45,33 +45,31 @@ jobs:
           chmod +x appimagetool
           mv appimagetool /usr/local/bin/
           
-      # Other necessary build steps specific to Alpine Linux
-
-- name: Build for Alpine
-  if: matrix.platform == 'linux'
-  run: |
-    # Install necessary build tools (replace these with your actual build dependencies)
-    apk add build-base git curl
-
-    # Clone your repository (replace 'your_repo_url' with your actual repository URL)
-    git clone your_repo_url
-    cd your_project_directory
-
-    # Install project dependencies (adjust according to your project's requirements)
-    # For example, if it's a Node.js project:
-    apk add nodejs npm
-    npm install
-
-    # Execute build commands
-    # Replace these commands with your actual build commands for the project
-    make build  # Example build command
-
-    # After the build, you might package or prepare your application for distribution
-    # Example: Compress the built files into an archive
-    tar -czvf your_app.tar.gz ./build_folder
-
-    # Optionally, clean up unnecessary dependencies or temporary files
-    apk del build-base git curl  # Remove build tools not needed in the final app
-
-    # You might also want to move or copy the built artifacts to an appropriate location
-    mv your_app.tar.gz /path/to/artifact_storage
+      - name: Build for Alpine
+        if: matrix.platform == 'linux'
+        run: |
+          # Install necessary build tools (replace these with your actual build       dependencies)
+          apk add build-base git curl
+      
+          # Clone your repository (replace 'your_repo_url' with your actual repository      URL)
+          git clone your_repo_url
+          cd your_project_directory
+      
+          # Install project dependencies (adjust according to your project's      requirements)
+          # For example, if it's a Node.js project:
+          apk add nodejs npm
+          npm install
+      
+          # Execute build commands
+          # Replace these commands with your actual build commands for the project
+          make build  # Example build command
+      
+          # After the build, you might package or prepare your application for      distribution
+          # Example: Compress the built files into an archive
+          tar -czvf your_app.tar.gz ./build_folder
+      
+          # Optionally, clean up unnecessary dependencies or temporary files
+          apk del build-base git curl  # Remove build tools not needed in the final app
+      
+          # You might also want to move or copy the built artifacts to an appropriate       location
+          mv your_app.tar.gz /path/to/artifact_storage      
